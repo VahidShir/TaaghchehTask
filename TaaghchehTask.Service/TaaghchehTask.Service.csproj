@@ -6,4 +6,8 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\TaaghchehTask.Abstraction\TaaghchehTask.Abstraction.csproj" />
+  </ItemGroup>
+
 </Project>

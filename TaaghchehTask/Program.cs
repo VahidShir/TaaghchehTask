@@ -1,6 +1,12 @@
+using Microsoft.Extensions.Configuration;
+
+using TaaghchehTask.Abstraction.Configs;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+
+builder.Services.Configure<TaaghchehSettings>(builder.Configuration.GetSection("TaaghchehTask"));
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

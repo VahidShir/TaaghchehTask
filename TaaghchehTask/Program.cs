@@ -1,17 +1,21 @@
 using Microsoft.Extensions.Configuration;
 
 using TaaghchehTask.Abstraction.Configs;
+using TaaghchehTask.Abstraction.Services;
+using TaaghchehTask.Service;
 
 var builder = WebApplication.CreateBuilder(args);
+var services = builder.Services;
 
 // Add services to the container.
+services.Configure<TaaghchehSettings>(builder.Configuration.GetSection("TaaghchehTask"));
+services.AddHttpClient();
+services.AddWTaaghchehervices();
 
-builder.Services.Configure<TaaghchehSettings>(builder.Configuration.GetSection("TaaghchehTask"));
-
-builder.Services.AddControllers();
+services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+services.AddEndpointsApiExplorer();
+services.AddSwaggerGen();
 
 var app = builder.Build();
 

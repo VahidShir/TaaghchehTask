@@ -7,29 +7,38 @@ using TaaghchehTask.Abstraction.Services;
 
 namespace TaaghchehTask.Service;
 
-internal class InMemoryCacheGetBookInfoService : IInMemoryCacheGetBookInfoService
+internal class InMemoryCacheGetBookInfoService : AbstractGetBookInfoServiceHandler, IInMemoryCacheGetBookInfoService
 {
     private readonly IMemoryCache _memoryCache;
-    private readonly IWebApiGetBookInfoService _webApiGetBookInfoService;
     private TaaghchehSettings _taaghchehSettings;
 
-    public InMemoryCacheGetBookInfoService(IMemoryCache memoryCache, IWebApiGetBookInfoService webApiGetBookInfoService, IOptions<TaaghchehSettings> options)
+    public InMemoryCacheGetBookInfoService(IMemoryCache memoryCache, IOptions<TaaghchehSettings> options)
     {
         _memoryCache = memoryCache;
-        _webApiGetBookInfoService = webApiGetBookInfoService;
         _taaghchehSettings = options.Value;
     }
 
-    public async Task<BookInfo> GetBookInfoAsync(long bookInfo)
+    public override async Task<BookInfo> GetBookInfoAsync(long bookInfo)
     {
-        var cachedValue = await _memoryCache.GetOrCreateAsync(
-        bookInfo,
-        async cacheEntry =>
-        {
-            cacheEntry.AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(_taaghchehSettings.InMemoryCachExpirationTimeInSeconds);
-            return await _webApiGetBookInfoService.GetBookInfoAsync(bookInfo);
-        });
+        BookInfo result = null;
 
-        return cachedValue;
+        bool cacheExists = _memoryCache.TryGetValue<BookInfo>(bookInfo, out var cachedValue);
+
+        if (cacheExists)
+        {
+            result = cachedValue;
+        }
+        else if (_nextService is not null)
+        {
+            var valueFromNextService = await _nextService.GetBookInfoAsync(bookInfo);
+
+            var expirationTimeSpan = TimeSpan.FromSeconds(_taaghchehSettings.InMemoryCachExpirationTimeInSeconds);
+
+            _memoryCache.Set(bookInfo, valueFromNextService, expirationTimeSpan);
+
+            result = valueFromNextService;
+        }
+
+        return result;
     }
 }

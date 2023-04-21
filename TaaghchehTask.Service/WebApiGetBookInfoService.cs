@@ -8,7 +8,7 @@ using TaaghchehTask.Abstraction.Services;
 
 namespace TaaghchehTask.Service;
 
-internal class WebApiGetBookInfoService : IWebApiGetBookInfoService
+internal class WebApiGetBookInfoService : AbstractGetBookInfoServiceHandler, IWebApiGetBookInfoService
 {
     private readonly HttpClient _httpClient;
     private TaaghchehSettings _taaghchehSettings;
@@ -20,10 +20,16 @@ internal class WebApiGetBookInfoService : IWebApiGetBookInfoService
         _httpClient.BaseAddress = new Uri(_taaghchehSettings.GetBookInfoApiEndpoint);
     }
 
-    public async Task<BookInfo> GetBookInfoAsync(long bookInfo)
+    public override async Task<BookInfo> GetBookInfoAsync(long bookInfo)
     {
         BookInfo result = await _httpClient.GetFromJsonAsync<BookInfo>(bookInfo.ToString());
 
         return result;
+
+        //if (_nextService is not null)
+        //{
+        //    // add code here in case next service(layer) is added in future
+
+        //}
     }
 }

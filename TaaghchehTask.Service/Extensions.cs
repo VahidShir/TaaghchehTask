@@ -9,5 +9,5 @@ internal static class Extensions
     public static BookInfo ToBookInfo(this string bookInfoInString)
     {
         return JsonSerializer.Deserialize<BookInfo>(bookInfoInString);
-    } 
+    }
 }

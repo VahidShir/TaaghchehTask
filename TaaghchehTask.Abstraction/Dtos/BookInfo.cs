@@ -1,4 +1,4 @@
-﻿using System.Xml.Linq;
+﻿using System.Text.Json;
 
 namespace TaaghchehTask.Abstraction.Dtos;
 
@@ -12,4 +12,9 @@ public record BookInfo
     public IList<object> Quotes { get; set; }
     public int QuotesCount { get; set; }
     public bool HideOffCoupon { get; set; }
+
+    public override string ToString()
+    {
+        return JsonSerializer.Serialize(this);
+    }
 }

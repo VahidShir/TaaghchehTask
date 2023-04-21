@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Options;
+﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 using System.Net.Http.Json;
 
@@ -11,18 +12,24 @@ namespace TaaghchehTask.Service;
 internal class WebApiGetBookInfoService : AbstractGetBookInfoServiceHandler, IWebApiGetBookInfoService
 {
     private readonly HttpClient _httpClient;
+    private readonly ILogger<WebApiGetBookInfoService> _logger;
     private TaaghchehSettings _taaghchehSettings;
 
-    public WebApiGetBookInfoService(IHttpClientFactory httpClientFactory, IOptions<TaaghchehSettings> options)
+    public WebApiGetBookInfoService(IHttpClientFactory httpClientFactory, IOptions<TaaghchehSettings> options, ILogger<WebApiGetBookInfoService> logger)
     {
         _taaghchehSettings = options.Value;
         _httpClient = httpClientFactory.CreateClient();
         _httpClient.BaseAddress = new Uri(_taaghchehSettings.GetBookInfoApiEndpoint);
+        _logger = logger;
     }
 
-    public override async Task<BookInfo> GetBookInfoAsync(long bookInfo)
+    public override async Task<BookInfo> GetBookInfoAsync(long bookId)
     {
-        BookInfo result = await _httpClient.GetFromJsonAsync<BookInfo>(bookInfo.ToString());
+        _logger.LogInformation($"Getting book info. Book id:{bookId}");
+
+        BookInfo result = await _httpClient.GetFromJsonAsync<BookInfo>(bookId.ToString());
+
+        _logger.LogInformation($"Is successfull? {result is not null}");
 
         return result;
 

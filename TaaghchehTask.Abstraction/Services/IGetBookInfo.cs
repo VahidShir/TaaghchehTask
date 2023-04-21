@@ -4,5 +4,5 @@ namespace TaaghchehTask.Abstraction.Services;
 
 public interface IGetBookInfoService
 {
-    Task<BookInfo> GetBookInfoAsync(long bookInfo);
+    Task<BookInfo> GetBookInfoAsync(long bookId);
 }

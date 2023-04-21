@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 using TaaghchehTask.Abstraction.Configs;
@@ -10,38 +11,55 @@ namespace TaaghchehTask.Service;
 internal class RedisGetBookInfoService : AbstractGetBookInfoServiceHandler, IRedisGetBookInfoService
 {
     private readonly IDistributedCache _cache;
+    private readonly ILogger<RedisGetBookInfoService> _logger;
     private TaaghchehSettings _taaghchehSettings;
 
-    public RedisGetBookInfoService(IDistributedCache cache, IOptions<TaaghchehSettings> options)
+    public RedisGetBookInfoService(IDistributedCache cache, IOptions<TaaghchehSettings> options, ILogger<RedisGetBookInfoService> logger)
     {
         _cache = cache;
+        _logger = logger;
         _taaghchehSettings = options.Value;
     }
 
-    public override async Task<BookInfo> GetBookInfoAsync(long bookInfo)
+    public override async Task<BookInfo> GetBookInfoAsync(long bookId)
     {
+        _logger.LogInformation($"Getting book info. Book id:{bookId}");
+
         BookInfo result = null;
 
-        var cachedValue = await _cache.GetStringAsync(bookInfo.ToString());
+        var cachedValue = await _cache.GetStringAsync(bookId.ToString());
 
         if (cachedValue is not null)
         {
+            _logger.LogInformation($"BookInfo does exist in redis cache and returning it.");
+
             result = cachedValue.ToBookInfo();
         }
         else if (_nextService is not null)
         {
-            var valueFromNextService = await _nextService.GetBookInfoAsync(bookInfo);
+            _logger.LogInformation($"BookInfo doesn't exist in rediscache and therefore getting it from next layer.");
 
-            var expirationTimeSpan = TimeSpan.FromSeconds(_taaghchehSettings.InMemoryCachExpirationTimeInSeconds);
+            var valueFromNextService = await _nextService.GetBookInfoAsync(bookId);
 
-            var options = new DistributedCacheEntryOptions
+            if (valueFromNextService is not null)
             {
-                AbsoluteExpirationRelativeToNow = expirationTimeSpan
-            };
+                _logger.LogInformation($"Successfully got bookInfo from next layer. Returning it and also saving it in redis cache.");
 
-            await _cache.SetStringAsync(bookInfo.ToString(), valueFromNextService.ToString(), options);
+                var expirationTimeSpan = TimeSpan.FromSeconds(_taaghchehSettings.InMemoryCachExpirationTimeInSeconds);
 
-            result = valueFromNextService;
+                var options = new DistributedCacheEntryOptions
+                {
+                    AbsoluteExpirationRelativeToNow = expirationTimeSpan
+                };
+
+                await _cache.SetStringAsync(bookId.ToString(), valueFromNextService.ToString(), options);
+
+                result = valueFromNextService;
+            }
+            else
+            {
+                _logger.LogInformation($"couldn't get bookInfo from next layer. Returning null.");
+            }
         }
 
         return result;

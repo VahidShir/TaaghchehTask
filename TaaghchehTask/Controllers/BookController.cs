@@ -10,7 +10,7 @@ namespace TaaghchehTask.Server.Controllers;
 public class BookController : ControllerBase
 {
     [HttpGet]
-    public async Task<IActionResult> GetBookInfoAsync(long bookId, [FromServices] IInMemoryCacheGetBookInfoService service)
+    public async Task<IActionResult> GetBookInfoAsync(long bookId, [FromServices] IRedisGetBookInfoService service)
     {
         BookInfo bookInfo = await service.GetBookInfoAsync(bookId);
 

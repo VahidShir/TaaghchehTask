@@ -4,6 +4,9 @@
 </p>
 <code>docker run -d -p 6379:6379 — name redis redis</code>
 <p>
+برای نمایش چگونگی افزودن لایه‌های جدید یا تغییر آنها به پول ریکوئست موجود رجوع کنید:
+<a href="https://github.com/VahidShir/TaaghchehTask/pull/1">اینجا</a>
+<p>
 <h4> توضیحات تسک</h4>
 پروژه ی بک اند
 سلام دوست عزیز

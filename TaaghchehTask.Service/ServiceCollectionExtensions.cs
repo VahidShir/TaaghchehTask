@@ -19,9 +19,11 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<IInMemoryCacheGetBookInfoService, InMemoryCacheGetBookInfoService>();
         AddRedisService(services, configuration);
         services.AddSingleton<IRedisGetBookInfoService, RedisGetBookInfoService>();
+        services.AddSingleton<IFileGetBookInfoService, FileGetBookInfoService>();
         services.AddSingleton<IGetBookInfoServiceHandler, InMemoryCacheGetBookInfoService>();
         services.AddSingleton<IGetBookInfoServiceHandler, RedisGetBookInfoService>();
         services.AddSingleton<IGetBookInfoServiceHandler, WebApiGetBookInfoService>();
+        services.AddSingleton<IGetBookInfoServiceHandler, FileGetBookInfoService>();
         services.AddSingleton<ILayeredGetBookInfoService, LayeredGetBookInfoService>();
 
         return services;

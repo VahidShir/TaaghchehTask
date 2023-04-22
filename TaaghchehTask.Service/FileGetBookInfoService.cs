@@ -9,6 +9,6 @@ internal class FileGetBookInfoService : AbstractGetBookInfoServiceHandler, IFile
     {
         // Here we must write the code to save and retrive book info in file system.
         // Here we merely delegate this responsibility to next handler since it's just for demonstration
-        return await _nextService.GetBookInfoAsync(bookInfo);
+        return await _nextService?.GetBookInfoAsync(bookInfo);
     }
 }

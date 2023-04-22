@@ -1,22 +1,11 @@
-using AutoFixture;
-
-using FakeItEasy;
-
-using FluentAssertions;
-
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
-
-using System.Text.Json;
 
 using TaaghchehTask.Abstraction.Configs;
 using TaaghchehTask.Abstraction.Dtos;
 using TaaghchehTask.Service;
-
-using File = System.IO.File;
 
 namespace TaaghchehTask.Test;
 

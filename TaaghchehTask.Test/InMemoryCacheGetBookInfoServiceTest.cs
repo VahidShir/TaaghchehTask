@@ -55,7 +55,7 @@ public class InMemoryCacheGetBookInfoServiceTest
         var optionsFake = A.Fake<IOptions<TaaghchehSettings>>();
         var inMemoryCacheService = new InMemoryCacheGetBookInfoService(memoryCache, optionsFake, loggerFake);
 
-        var bookInfo = await GetSampleBookInfo();
+        var bookInfo = await Helper.GetSampleBookInfo();
         long bookId = bookInfo.Book.Id;
 
         memoryCache.Set(bookId, bookInfo);
@@ -80,7 +80,7 @@ public class InMemoryCacheGetBookInfoServiceTest
         var optionsFake = Options.Create(new TaaghchehSettings { InMemoryCachExpirationTimeInSeconds = 5 });
         var inMemoryCacheService = new InMemoryCacheGetBookInfoService(memoryCache, optionsFake, loggerFakeInMemoryCache);
 
-        var bookInfo = await GetSampleBookInfo();
+        var bookInfo = await Helper.GetSampleBookInfo();
         long bookId = bookInfo.Book.Id;
 
         var redisService = A.Fake<RedisGetBookInfoService>(x => x.WithArgumentsForConstructor(new object[] { redisCach, optionsFake, loggerFakeRedisCache }));
@@ -99,17 +99,34 @@ public class InMemoryCacheGetBookInfoServiceTest
         A.CallTo(() => redisService.GetBookInfoAsync(bookId)).MustHaveHappenedOnceExactly();
     }
 
-    private async Task<BookInfo> GetSampleBookInfo()
+    [Fact]
+    public async Task WithNextServiceHandlerIsSetAndNextServiceHandlerHasNotExistingCachedValue_ExistingCacheValue_NullMustBeReturned()
     {
-        var file = await File.ReadAllTextAsync("sampleBook.json");
+        //Arrange
+        var redisOptions = Options.Create(new MemoryDistributedCacheOptions());
+        IDistributedCache redisCach = new MemoryDistributedCache(redisOptions);
+        var memoryCache = new MemoryCache(new MemoryCacheOptions());
+        var loggerFakeInMemoryCache = new NullLogger<InMemoryCacheGetBookInfoService>();
+        var loggerFakeRedisCache = new NullLogger<RedisGetBookInfoService>();
+        var optionsFake = Options.Create(new TaaghchehSettings { InMemoryCachExpirationTimeInSeconds = 5 });
+        var inMemoryCacheService = new InMemoryCacheGetBookInfoService(memoryCache, optionsFake, loggerFakeInMemoryCache);
 
-        var options = new JsonSerializerOptions
-        {
-            PropertyNameCaseInsensitive = true
-        };
+        var bookInfo = await Helper.GetSampleBookInfo();
+        long bookId = bookInfo.Book.Id;
 
-        BookInfo bookInfo = JsonSerializer.Deserialize<BookInfo>(file, options);
+        var redisService = A.Fake<RedisGetBookInfoService>(x => x.WithArgumentsForConstructor(new object[] { redisCach, optionsFake, loggerFakeRedisCache }));
 
-        return bookInfo;
+        BookInfo nullBookInfo = null;
+        A.CallTo(() => redisService.GetBookInfoAsync(bookId)).Returns(nullBookInfo);
+
+        //Set next handler layer
+        inMemoryCacheService.SetNextLayer(redisService);
+
+        //Act
+        BookInfo actualValue = await inMemoryCacheService.GetBookInfoAsync(bookId);
+
+        //Assert
+        actualValue.Should().BeNull();
+        A.CallTo(() => redisService.GetBookInfoAsync(bookId)).MustHaveHappenedOnceExactly();
     }
 }

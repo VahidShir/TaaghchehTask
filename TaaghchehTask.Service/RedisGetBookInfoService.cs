@@ -27,9 +27,9 @@ internal class RedisGetBookInfoService : AbstractGetBookInfoServiceHandler, IRed
 
         BookInfo result = null;
 
-        var cachedValue = await _cache.GetStringAsync(bookId.ToString());
+        string cachedValue = await _cache.GetStringAsync(bookId.ToString());
 
-        if (cachedValue is not null)
+        if (!string.IsNullOrWhiteSpace(cachedValue))
         {
             _logger.LogInformation($"BookInfo does exist in redis cache and returning it.");
 

@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
+using System.Diagnostics.CodeAnalysis;
 using System.Net.Http.Json;
 
 using TaaghchehTask.Abstraction.Configs;
@@ -9,6 +10,7 @@ using TaaghchehTask.Abstraction.Services;
 
 namespace TaaghchehTask.Service;
 
+[ExcludeFromCodeCoverage]
 internal class WebApiGetBookInfoService : AbstractGetBookInfoServiceHandler, IWebApiGetBookInfoService
 {
     private readonly HttpClient _httpClient;

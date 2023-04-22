@@ -1,11 +1,14 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
+using System.Diagnostics.CodeAnalysis;
+
 using TaaghchehTask.Abstraction.Configs;
 using TaaghchehTask.Abstraction.Services;
 
 namespace TaaghchehTask.Service;
 
+[ExcludeFromCodeCoverage]
 public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddWTaaghchehervices(this IServiceCollection services, ConfigurationManager configuration)

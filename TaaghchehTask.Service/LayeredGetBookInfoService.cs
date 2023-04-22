@@ -17,18 +17,17 @@ internal class LayeredGetBookInfoService : ILayeredGetBookInfoService
 
     public async Task<BookInfo> GetBookInfoAsync(long bookInfo)
     {
-
         return await _firstHandler.GetBookInfoAsync(bookInfo);
     }
 
     private void SetLayers()
     {
         var inMemoryCacheHandler = _handlers.Single(h => h.GetType() == typeof(InMemoryCacheGetBookInfoService));
-        var redisCacheHandler = _handlers.Single(h => h.GetType() == typeof(RedisGetBookInfoService));
+        var fileCacheHandler = _handlers.Single(h => h.GetType() == typeof(FileGetBookInfoService));
         var webApiHandler = _handlers.Single(h => h.GetType() == typeof(WebApiGetBookInfoService));
 
-        inMemoryCacheHandler.SetNextLayer(redisCacheHandler);
-        redisCacheHandler.SetNextLayer(webApiHandler);
+        inMemoryCacheHandler.SetNextLayer(fileCacheHandler);
+        fileCacheHandler.SetNextLayer(webApiHandler);
 
         _firstHandler =  inMemoryCacheHandler;
     }
